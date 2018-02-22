@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <!-- Custom user form -->
+        <record model="ir.ui.view" id="user_form_view">
+            <field name="name">fctactivities.user</field> 
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+                <notebook position="inside">
+                    <page string="User Type">
+                        <group>
+                            <field name="isPupil" attrs="{'invisible': [('isTutor','=' ,True)]}"/>
+                            <field name="isTutor" attrs="{'invisible': [('isPupil', '=' ,True)]}"/>
+                            <field name="tutor" attrs="{'invisible': [('isPupil', '=', False)]}"/>
+                            <field name="pupils" attrs="{'invisible': [('isTutor', '=', False)]}"/>                     
+                            <field name="fctpartner" attrs="{'invisible': [('isPupil', '=' ,False)]}"/>
+                        </group>
+
+                        <group>
+                            <field name="activities" attrs="{'invisible': [('isPupil', '=' ,False)]}"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>  
+        
+        <!-- Custom user simplified form --> 
+        <record model="ir.ui.view" id="user_simp_form_view">
+            <field name="name">fctactivities.user</field> 
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_simple_form"/>
+            <field name="arch" type="xml">
+                <group>
+                    <field name="isPupil" attrs="{'invisible': [('isTutor','=' ,True)]}" />
+                    <field name="isTutor" attrs="{'invisible': [('isPupil', '=' ,True)]}" />
+                    <field name="tutor" attrs="{'invisible': [('isPupil', '=', False)]}"/>
+                    <field name="pupils" attrs="{'invisible': [('isTutor', '=', False)]}"/>                     
+                    <field name="fctpartner" attrs="{'invisible': [('isPupil', '=' ,False)]}"/>
+                </group>
+
+                <group>
+                    <field name="activities" attrs="{'invisible': [('isPupil', '=' ,False)]}"/>
+                </group>
+
+            </field>
+        </record> 
+    </data>
+</odoo>

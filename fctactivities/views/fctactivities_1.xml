@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      
+        <record model="ir.ui.view" id="activity_form_view">
+            <field name="name">activity.form</field>
+            <field name="model">fctactivities.activity</field>
+            <field name="arch" type="xml">
+                <form string="Activity Form">
+                    <sheet>
+                        <group string="Activity">
+                            <field name="date"/>
+                            <field name="description"/>
+                            <field name="duration"/>
+                            <field name="remarks"/>
+                            <field name="owner"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+	</record>
+        
+       <!--the user is allowed to update or delete the activities that belong to him.-->  
+      <record model="ir.rule" id="activities_rule">
+        <field name="name">User is allowed to update his activities</field>
+        <field name="model_id" ref="model_fctactivities_activity"/>
+        <field name="domain_force">[('owner','=',user.id)]</field>
+         <field name="perm_read" eval="False"/>
+        <field name="perm_create" eval="False"/>
+        <field name="perm_write" eval="True"/>
+        <field name="perm_unlink" eval="True"/>
+    </record>
+        
+        <!-- search view meterle entre fechas 
+        La busqueda entre fechas -->
+        <record model="ir.ui.view" id="activity_search_view">
+            <field name="name">activity.search</field>
+            <field name="model">fctactivities.activity</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="description"/>
+                    <filter string="This Year" 
+                            name="thisyear"
+                            domain="['|', ('date', '=', False), '&amp;',('date','&lt;=', time.strftime('%%Y-12-31')),('date','&gt;=',time.strftime('%%Y-01-01'))]" 
+                            help="Activities with period in current year" />
+                    <filter name="alumno" string="Alumno" context="{'group_by': 'owner'}" />
+                </search>
+            </field>
+        </record>
+      
+        <!-- session tree/list view -->
+        <record model="ir.ui.view" id="activity_tree_view">
+            <field name="name">activity.tree</field>
+            <field name="model_id" ref="model_fctactivities_activity"/>
+            <field name="model">fctactivities.activity</field>
+            <field name="arch" type="xml">
+            <tree string="Activity Tree">
+                <field name="date"/>
+                <field name="description"/>
+                <field name="duration"/>
+                <field name="owner"/>
+            </tree>
+           </field>
+        </record>
+        <record model="ir.actions.act_window" id="activity_list_action">
+            <field name="name">Activities</field>
+            <field name="res_model">fctactivities.activity</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">
+                    Create the first activity
+                </p>
+            </field>
+        </record>
+        <!-- PUPILS -->
+        <record model="ir.ui.view" id="users_tree_view">
+            <field name="name">users.tree</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_simple_form"/>
+            <field name="arch" type="xml">
+                <group>
+                	<field name="activities"/>
+            	</group>
+           </field>
+        </record>
+        
+        <record model="ir.actions.act_window" id="pupils_list_action">
+            <field name="name">Pupils</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">No pupils</p>
+            </field>
+        </record>
+        <!-- Tutor only view his pupils-->
+        <record model="ir.rule" id="pupils_rule">
+            <field name="name">Tutor only view his pupils</field>
+            <field name="model_id" ref="model_res_users"/>
+            <field name="domain_force">[('tutor','=',user.id)]</field>
+             <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        
+         <!-- FCTPARTNER -->
+        <record model="ir.ui.view" id="partner_tree_view">
+            <field name="name">partner.tree</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+            <tree string="Activity Tree">
+                <field name="pupil_ids"/>
+            </tree>
+           </field>
+        </record>
+        <record model="ir.actions.act_window" id="partner_list_action">
+            <field name="name">Partner</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('isFCTPartner','=','True')]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">No Partners</p>
+            </field>
+        </record>
+    
+
+        
+      
+        
+        <!-- top level menu: no parent -->
+        <menuitem id="main_fctactivities_menu"
+                  name="FCT Activities"/>
+        <!-- A first level in the left side menu is
+        needed before using action= attribute -->
+        <menuitem id="fctactivities_menu"
+                  name="Seguimiento FCT"
+                  parent="main_fctactivities_menu"/>
+        
+        <!-- Second level menu for activities -->
+        <menuitem id="activities_menu"
+                name="Activity"
+                parent="fctactivities_menu"
+                action="activity_list_action"
+                groups="group_tutor,group_pupil"/> 
+        
+        <!-- Second level menu for pupils -->
+        <menuitem id="pupils_menu" 
+                  name="Pupils" 
+                  parent="fctactivities_menu"
+                  action="pupils_list_action"
+                  groups="group_tutor"/>
+                  
+        <!-- Second level menu for fctPartners -->
+        <menuitem id="partner_menu" 
+                  name="Partner" 
+                  parent="fctactivities_menu"
+                  action="partner_list_action"
+                  groups="group_tutor"/>    
+    </data>
+</odoo>

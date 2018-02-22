@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+      
+        <!-- ACTIVITY FORM VIEW -->
+        <record model="ir.ui.view" id="activity_form_view">
+            <field name="name">activity.form</field>
+            <field name="model">fctactivities.activity</field>
+            <field name="arch" type="xml">
+                <form string="Activity Form">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="date"/>
+                            <field name="duration"/>
+                            <field name="owner" readonly="1"/>
+                        </group>
+                        <notebook>
+                            <page string="Description">
+                                <field name="description"/>
+                            </page>
+                            <page string="Remarks">
+                                <field name="remarks"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+        
+        <!-- ACTIVITIES WINDOW RULES -->
+        <record model="ir.rule" id="activities_rule">
+            <field name="name">A pupil can only see and update his activities</field>
+            <field name="model_id" ref="model_fctactivities_activity"/>
+            <field name="domain">[('owner','=',user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="True"/>
+            <field name="perm_write" eval="True"/>
+            <field name="perm_unlink" eval="True"/>
+        </record>
+        
+        <!-- ACTIVITY SEARCH VIEW -->
+        <record model="ir.ui.view" id="activity_search_view">
+            <field name="name">activity.search</field>
+            <field name="model">fctactivities.activity</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="description"/>
+                    <filter name="pupil" string="Pupil" context="{'group_by': 'owner'}" />
+                    <!-- FILTER CURRENT DATES -->
+                    <!--                    <filter string="From 1 year to today" 
+                    name="From 1 year to today"
+                    domain="['|', ('date', '=', False), '&amp;',('date','&gt;=', ((context_today()-datetime.timedelta(years=1)).strftime('%Y-%m-%d'))),('date','&lt;=', (context_today().strftime('%Y-%m-%d')))]"
+                    help="Activities from today minus 1 year" />-->
+                </search>
+            </field>
+        </record>
+      
+        <!-- ACTIVITY TREE VIEW -->
+        <record model="ir.ui.view" id="activity_tree_view">
+            <field name="name" >activity.tree</field>
+            <field name="model_id" ref="model_fctactivities_activity"/>
+            <field name="model">fctactivities.activity</field>
+            <field name="domain">[('owner','=',user.id)]</field>
+            <field name="arch" type="xml">
+                <tree string="Activity Tree">
+                    <field name="name"/>
+                    <field name="description"/>
+                    <field name="date"/>
+                    <field name="duration"/>
+                </tree>
+            </field>
+        </record>
+        
+        <!-- ACTIVITIES WINDOW ACTION -->
+        <record model="ir.actions.act_window" id="activity_list_action">
+            <field name="name">Activities</field>
+            <field name="res_model">fctactivities.activity</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first activity
+                </p>
+            </field>
+        </record>
+        
+        
+        <!-- PUPILS TREE VIEW -->
+        <record model="ir.ui.view" id="users_tree_view">
+            <field name="name">users.tree</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_simple_form"/>
+            <field name="arch" type="xml">
+                <group>
+                    <field name="activities"/>
+                </group>
+            </field>
+        </record>
+        
+        <!-- PUPILS WINDOW ACTION -->
+        <record model="ir.actions.act_window" id="pupils_list_action">
+            <field name="name">Pupils</field>
+            <field name="res_model">res.users</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('isPupil','=','True')]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first pupil</p>
+            </field>
+        </record>
+        
+        <!-- PUPILS WINDOW RULES -->
+        <record model="ir.rule" id="pupils_rule">
+            <field name="name">Only show pupils associated to current tutor user.</field>
+            <field name="model_id" ref="model_res_users"/>
+            <field name="domain_force">[('tutor','=',user.id)]</field>
+            <field name="perm_read" eval="True"/>
+            <field name="perm_create" eval="False"/>
+            <field name="perm_write" eval="False"/>
+            <field name="perm_unlink" eval="False"/>
+        </record>
+        
+        <!-- FCTPARTNER -->
+        <record model="ir.ui.view" id="partner_tree_view">
+            <field name="name">partner.tree</field>
+            <field name="model">res.partner</field>
+            <field name="arch" type="xml">
+                <tree string="Activity Tree">
+                    <field name="pupil_ids"/>
+                </tree>
+            </field>
+        </record>
+        
+        
+        <!-- PARTNERS WINDOW ACTION -->
+        <record model="ir.actions.act_window" id="partner_list_action">
+            <field name="name">Partners</field>
+            <field name="res_model">res.partner</field>
+            <field name="view_type">form</field>
+            <field name="view_mode">tree,form</field>
+            <field name="domain">[('isFCTPartner','=','True')]</field>
+            <field name="help" type="html">
+                <p class="oe_view_nocontent_create">Create the first partner</p>
+            </field>
+        </record>
+    
+
+        
+      
+        
+        <!-- top level menu: no parent -->
+        <menuitem id="main_fctactivities_menu"
+                  name="FCT Activities"/>
+        <!-- A first level in the left side menu is
+        needed before using action= attribute -->
+        <menuitem id="fctactivities_menu"
+                  name="Seguimiento FCT"
+                  parent="main_fctactivities_menu"/>
+        
+        <!-- Second level menu for activities -->
+        <menuitem id="activities_menu"
+                  name="Activity"
+                  parent="fctactivities_menu"
+                  action="activity_list_action"
+                  groups="group_tutor,group_pupil"/> 
+        
+        <!-- Second level menu for pupils -->
+        <menuitem id="pupils_menu" 
+                  name="Pupils" 
+                  parent="fctactivities_menu"
+                  action="pupils_list_action"
+                  groups="group_tutor"/>
+                  
+        <!-- Second level menu for fctPartners -->
+        <menuitem id="partner_menu" 
+                  name="Partner" 
+                  parent="fctactivities_menu"
+                  action="partner_list_action"
+                  groups="group_tutor"/>    
+    </data>
+</odoo>

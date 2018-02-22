@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="fct_partner_form_view">
+            <field name="name">fctactivities.partner</field>
+            <field name="model">res.partner</field>
+            <field name="inherit_id" ref="base.view_partner_form"/>
+            <field name="arch" type="xml">
+                <group>
+                    <field name="isFCTPartner" string="FCTPartner"/>
+                </group>
+                <notebook position="inside">
+                    <page string="Pupils">
+                        <group>
+                            <field name="pupil_ids"/>
+                        </group>
+                    </page>
+                </notebook>
+            </field>
+        </record>
+    </data>
+</odoo>
